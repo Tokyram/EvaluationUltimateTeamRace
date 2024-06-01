@@ -152,7 +152,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	
 			$this->db->query('SET FOREIGN_KEY_CHECKS = 0');
 
-			$this->db->truncate('etapes');
+			$this->db->truncate('etape');
 
 			$this->db->truncate('coureur');
 

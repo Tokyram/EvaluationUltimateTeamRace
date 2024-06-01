@@ -7,15 +7,15 @@ CREATE  TABLE race.equipe_coureur (
  ) engine=InnoDB;
 
 INSERT INTO race.equipe_coureur (id_equipe, id_coureur) VALUES
-(2, 1),
-(2, 2),
-(3, 3),
-(3, 4),
-(4, 5),
-(4, 6),
-(2, 7),
-(5, 8),
-(5, 9);
+(6, 1),
+(6, 2),
+(7, 3),
+(7, 4),
+(8, 5),
+(8, 6),
+(6, 7),
+(9, 8),
+(9, 9);
 
 SELECT
     utilisateur.nom AS nom_equipe,

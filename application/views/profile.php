@@ -22,11 +22,11 @@
         <div class="col-lg-4">
            <div class="card profile-card-2">
             <div class="card-img-block">
-                <img class="img-fluid" src="https://via.placeholder.com/800x500" alt="Card image cap">
+                <img class="img-fluid" src="<?=base_url('assets/images/equipe.jpeg')?>" alt="Card image cap">
             </div>
             <div class="card-body pt-5">
                 <!-- <img src="https://via.placeholder.com/110x110" alt="profile-image" class="profile"> -->
-                <h2 class="card-title">
+                <h2  >
 
                 <?php
                     $user = $this->session->userdata('utilisateur');
@@ -42,30 +42,31 @@
 
                     ?>
                 </h2>
-                <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> -->
-                <div class="icon-block">
-                  <a href="javascript:void();"><i class="fa fa-facebook bg-facebook text-white"></i></a>
-				  <a href="javascript:void();"> <i class="fa fa-twitter bg-twitter text-white"></i></a>
-				  <a href="javascript:void();"> <i class="fa fa-google-plus bg-google-plus text-white"></i></a>
-                </div>
+              
             </div>
 
             <div class="card-body border-top border-light">
+            <?php foreach($equipe_coureur as $data): ?>  
+
                  <div class="media align-items-center">
                    <div>
                        <!-- <img src="assets/images/timeline/html5.svg" class="skill-img" alt="skill img"> -->
                    </div>
+
                      <div class="media-body text-left ml-3">
                        <div class="progress-wrapper">
-                         <p>HTML5 <span class="float-right">65%</span></p>
-                         <div class="progress" style="height: 5px;">
-                          <div class="progress-bar" style="width:65%"></div>
+                         <h5><i class="icon-user"></i> <?php echo $data->nom; ?> <span class="float-right"><?php echo $data->genre; ?> </span></h5>
+                         <div style="margin-left: 45px; color:#ffd400" >
+                          <p><?php echo $data->numero_dossard; ?></p>
                          </div>
-                        </div>                   
+                        </div> 
                     </div>
+
                   </div>
+
                   <hr>
                   
+                  <?php endforeach; ?>                  
                   
               </div>
         </div>
@@ -77,7 +78,7 @@
             <div class="card-body">
             <ul class="nav nav-tabs nav-tabs-primary top-icon nav-justified">
                 <li class="nav-item">
-                    <a href="javascript:void();" data-target="#profile" data-toggle="pill" class="nav-link active"><i class="icon-user"></i> <span class="hidden-xs">ETAPES</span></a>
+                    <a href="javascript:void();" data-target="#profile" data-toggle="pill" class="nav-link active"> <span class="hidden-xs">ETAPES</span></a>
                 </li>
               
             </ul>

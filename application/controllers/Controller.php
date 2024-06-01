@@ -103,6 +103,19 @@ class Controller extends CI_Controller {
 	}	
 	public function profil()
 	{
+		$user = $this->session->userdata('utilisateur');
+		$user2 = $this->session->userdata('administrateur');
+		
+		if ($user) {
+			$id_user = $user['id'];
+		} elseif ($user2) {
+			$id_user = $user2['id'];
+		} else {
+			echo "Aucun utilisateur connecté.";
+			return;
+		}
+		$data['equipe_coureur'] = $this->model->get_where_equipe_coureur($id_user);
+
 		$data['page'] = "profile";
 		$data['etapes'] = $this->model->findAll4('etape', 'nom','longueur', 'nb_coureur','rang_etape');
 		$this->load->view('header', $data);
@@ -117,7 +130,9 @@ class Controller extends CI_Controller {
 	
 	public function liste()
 	{
+		
 		$data['page'] = "cards";
+
 		$data['etapes'] = $this->model->findAll4('etape', 'nom','longueur', 'nb_coureur','rang_etape');
 		$this->load->view('header', $data);
 		
