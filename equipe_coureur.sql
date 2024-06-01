@@ -1,0 +1,28 @@
+CREATE SCHEMA race;
+
+CREATE  TABLE race.equipe_coureur ( 
+	id                   INT    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
+	id_equipe            INT       ,
+	id_coureur           INT       
+ ) engine=InnoDB;
+
+INSERT INTO race.equipe_coureur (id_equipe, id_coureur) VALUES
+(2, 1),
+(2, 2),
+(3, 3),
+(3, 4),
+(4, 5),
+(4, 6),
+(2, 7),
+(5, 8),
+(5, 9);
+
+SELECT
+    utilisateur.nom AS nom_equipe,
+    coureur.nom AS nom_coureur
+FROM
+    race.equipe_coureur
+JOIN
+    race.utilisateur ON race.equipe_coureur.id_equipe = race.utilisateur.id
+JOIN
+    race.coureur ON race.equipe_coureur.id_coureur = race.coureur.id;
