@@ -5,7 +5,13 @@
     <div class="container-fluid">
 
   <!--Start Dashboard Content-->
-
+  <div class="col-lg-12">
+            <a href="<?php echo base_url("Controller/actualise_resultat"); ?>" class="btn btn-light btn-round px-5">Actualiser les resultats</a>
+  </div>
+  <br>
+  <div class="col-lg-12">
+            <a href="<?php echo base_url("Controller/generer_categories"); ?>" style="background-color: #ffd400; color:black" class="btn btn-light btn-round px-5">Generer les categories des coureur</a>
+  </div>
 	<div class="card mt-3">
     <div class="card-content">
 

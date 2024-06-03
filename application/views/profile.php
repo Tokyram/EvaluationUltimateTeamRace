@@ -1,17 +1,5 @@
 
-<?php
-  $user = $this->session->userdata('utilisateur');
-  $user2 = $this->session->userdata('administrateur');
 
-  if ($user ) {
-      echo 'Nom d\'utilisateur : ' . $user['nom'];
-  } elseif($user2) {
-      echo 'Nom d\'utilisateur : ' . $user2['nom'];
-  }else{
-      echo "Aucun utilisateur connecté.";
-  }
-
-?>
 
 <div class="clearfix"></div>
 	
@@ -46,7 +34,7 @@
             </div>
 
             <div class="card-body border-top border-light">
-            <?php foreach($equipe_coureur as $data): ?>  
+            <?php foreach($equipe_coureur_categorie as $data): ?>  
 
                  <div class="media align-items-center">
                    <div>
@@ -57,8 +45,12 @@
                        <div class="progress-wrapper">
                          <h5><i class="icon-user"></i> <?php echo $data->nom; ?> <span class="float-right"><?php echo $data->genre; ?> </span></h5>
                          <div style="margin-left: 45px; color:#ffd400" >
-                          <p><?php echo $data->numero_dossard; ?></p>
+                          <p>N° Dossard : <?php echo $data->numero_dossard; ?></p>
+                          <div style="margin-left: 45px; color:#ffffff" >
+                          <p>categorie(s) : <?php echo $data->nom_categories;  ?></p>
+                            </div>
                          </div>
+                         
                         </div> 
                     </div>
 

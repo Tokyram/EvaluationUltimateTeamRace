@@ -29,9 +29,7 @@
    <div id="pageloader-overlay" class="visible incoming"><div class="loader-wrapper-outer"><div class="loader-wrapper-inner" ><div class="loader"></div></div></div></div>
    <!-- end loader -->
 
-   <?php if(isset($erreur)) {?>
-                        <p><?php echo $erreur; ?></p>
-                    <?php }?>
+   
 
 <!-- Start wrapper-->
  <div id="wrapper">
@@ -44,6 +42,15 @@
 		 		<img src="<?=base_url('assets/images/house.png')?>" alt="logo icon">
 		 	</div>
 		  <div class="card-title text-uppercase text-center py-3">Connectez-vouz</div>
+
+      <p>
+        <?php echo validation_errors(); ?> 
+        
+        <?php if (isset($erreur)) { ?>
+            <p><?php echo $erreur; ?></p>
+        <?php } ?>
+    </p>
+
 		    <form action="<?=base_url("Controller/validerLogin");?>" method="post">
 			  <div class="form-group">
 			  <label for="exampleInputUsername" class="sr-only">Utilisateur</label>

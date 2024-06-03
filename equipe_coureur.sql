@@ -7,10 +7,10 @@ CREATE  TABLE race.equipe_coureur (
  ) engine=InnoDB;
 
 INSERT INTO race.equipe_coureur (id_equipe, id_coureur) VALUES
-(6, 1),
-(6, 2),
-(7, 3),
-(7, 4),
+(2, 1),
+(2, 2),
+(3, 3),
+(3, 4);
 (8, 5),
 (8, 6),
 (6, 7),
@@ -26,3 +26,4 @@ JOIN
     race.utilisateur ON race.equipe_coureur.id_equipe = race.utilisateur.id
 JOIN
     race.coureur ON race.equipe_coureur.id_coureur = race.coureur.id;
+
