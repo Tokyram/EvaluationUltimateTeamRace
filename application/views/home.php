@@ -34,102 +34,213 @@
  </div>  
 	  
 	<div class="row">
-     <div class="col-12 col-lg-8 col-xl-8">
-	    <div class="card">
-		 <div class="card-header">Site Traffic
-		   <div class="card-action">
-			 <div class="dropdown">
-			 <a href="javascript:void();" class="dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown">
-			  <i class="icon-options"></i>
-			 </a>
-				<div class="dropdown-menu dropdown-menu-right">
-				<a class="dropdown-item" href="javascript:void();">Action</a>
-				<a class="dropdown-item" href="javascript:void();">Another action</a>
-				<a class="dropdown-item" href="javascript:void();">Something else here</a>
-				<div class="dropdown-divider"></div>
-				<a class="dropdown-item" href="javascript:void();">Separated link</a>
-			   </div>
-			  </div>
-		   </div>
-		 </div>
-		 <div class="card-body">
-		    <ul class="list-inline">
-			  <li class="list-inline-item"><i class="fa fa-circle mr-2 text-white"></i>New Visitor</li>
-			  <li class="list-inline-item"><i class="fa fa-circle mr-2 text-light"></i>Old Visitor</li>
-			</ul>
-			<div class="chart-container-1">
-			  <canvas id="chart1"></canvas>
-			</div>
-		 </div>
-		 
-		 <div class="row m-0 row-group text-center border-top border-light-3">
-		   <div class="col-12 col-lg-4">
-		     <div class="p-3">
-		       <h5 class="mb-0">45.87M</h5>
-			   <small class="mb-0">Overall Visitor <span> <i class="fa fa-arrow-up"></i> 2.43%</span></small>
-		     </div>
-		   </div>
-		   <div class="col-12 col-lg-4">
-		     <div class="p-3">
-		       <h5 class="mb-0">15:48</h5>
-			   <small class="mb-0">Visitor Duration <span> <i class="fa fa-arrow-up"></i> 12.65%</span></small>
-		     </div>
-		   </div>
-		   <div class="col-12 col-lg-4">
-		     <div class="p-3">
-		       <h5 class="mb-0">245.65</h5>
-			   <small class="mb-0">Pages/Visit <span> <i class="fa fa-arrow-up"></i> 5.62%</span></small>
-		     </div>
-		   </div>
-		 </div>
-		 
-		</div>
-	 </div>
 
-     <div class="col-12 col-lg-4 col-xl-4">
-        <div class="card">
-           <div class="card-header">classement général par équipe
-
-             <div class="card-action">
-             <div class="dropdown">
-             <a href="javascript:void();" class="dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown">
-              <i class="icon-options"></i>
-             </a>
-              <div class="dropdown-menu dropdown-menu-right">
-              <a class="dropdown-item" href="javascript:void();">Action</a>
-              <a class="dropdown-item" href="javascript:void();">Another action</a>
-              <a class="dropdown-item" href="javascript:void();">Something else here</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="javascript:void();">Separated link</a>
-               </div>
+      <div class="col-12 col-lg-4 col-xl-4">
+            <div class="card">
+              <div class="card-header">CHART CLASSEMENT EQUIPE
+                <div class="card-action">
+                <div class="dropdown">
+                <a href="javascript:void();" class="dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown">
+                  <i class="icon-options"></i>
+                </a>
+                  <div class="dropdown-menu dropdown-menu-right">
+                  <a class="dropdown-item" href="javascript:void();">Action</a>
+                  <a class="dropdown-item" href="javascript:void();">Another action</a>
+                  <a class="dropdown-item" href="javascript:void();">Something else here</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="javascript:void();">Separated link</a>
+                  </div>
+                  </div>
+                </div>
               </div>
-             </div>
-           </div>
-           <!-- <div class="card-body">
-		     <div class="chart-container-2">
-               <canvas id="chart2"></canvas>
-			  </div>
-           </div> -->
-           <div class="table-responsive">
-             <table class="table align-items-center">
-               <tbody>
+              <div class="card-body"><p>
+                <div class="chart-container-2" style="width: 400px; height:400px; display:flex;justify-content:center;color:#ffffff">
+                <?php
 
-               <?php foreach($classement_general_par_equipe_avec_rang as $data): ?> 
-                  <tr>
-                    <td><i class="fa fa-circle text-white mr-2"></i><?php echo $data->rang; ?></td>
-                    <td>Equipe <?php echo $data->nom_equipe; ?></td>
-                    <td > <p style=" color:#ffd400"><?php echo $data->points_totaux; ?></p></td>
-                  </tr>
-                 <?php endforeach; ?>
+                  $equipeLabels = [];
+                  $equipePoints = [];
+                  foreach ($classement_general_par_equipe_avec_rang as $data) {
+                    $equipeLabels[] = $data->nom_equipe; 
+                    $equipePoints[] = $data->points_totaux;
+                  }
+                  ?>
+                      <canvas id="myChart" width="200" height="200" style="margin-left:20px;color:#ffffff"></canvas>  <script>
+                        var ctx = document.getElementById('myChart').getContext('2d');
+                        var myChart = new Chart(ctx, {
+                          type: 'pie',
+                          data: {
+                            labels: <?php echo json_encode($equipeLabels); ?>,  datasets: [{
+                              backgroundColor: [
+                                "#ffd400",
+                                "#e5e5e5",
+                                "#191919",
+                                "#ffffff",
+                                "#1e7145"  
+                              ],
+                              data: <?php echo json_encode($equipePoints); ?>  }]
+                          },
+                          options: {
+                              fontColor: 'white', 
+                              title: {
+                                display: true,
+                                text: "Classement Général par Équipe",
+                                fontColor: 'white'
+                              },
+                              legend: {
+                                labels: {
+                                    fontColor: 'white'
+                                }
+                            }
+                            }
 
-               </tbody>
-             </table>
-           </div>
-         </div>
-     </div>
-	</div><!--End Row-->
+                        });
+                        </script>
+                </div>
+            
+
+            </div>
+        </div>
+        </div>
+        <?php if (!empty($categorie_equipe)): 
+                        $categories = array();
+
+                  foreach ($categorie_equipe as $result) {
+                    if (!isset($categories[$result['id_categorie']])) {
+                        $categories[$result['id_categorie']] = array();
+                    }
+                    $categories[$result['id_categorie']][] = $result;
+                }
+
+                    foreach ($categories as $id_categorie => $results):
+                      if (!empty($results)):
+                          $category_name = $results[0]['nom_categorie'];
+
+                          $categoryLabels = [];
+                          $categoryPoints = [];
+                          foreach ($results as $data) {
+                            $categoryLabels[] = $data['nom_equipe']; // Include "Equipe" for clarity
+                            $categoryPoints[] = $data['points_totaux'];
+                          }
+                    
+                         
+                          ?>
+
+                     
+        <div class="col-12 col-lg-4 col-xl-4">
+            <div class="card">
+              <div class="card-header">CHART CLASSEMENT CATEGORIE <?= htmlspecialchars($category_name) ?>
+                <div class="card-action">
+                <div class="dropdown">
+                <a href="javascript:void();" class="dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown">
+                  <i class="icon-options"></i>
+                </a>
+                  <div class="dropdown-menu dropdown-menu-right">
+                  <a class="dropdown-item" href="javascript:void();">Action</a>
+                  <a class="dropdown-item" href="javascript:void();">Another action</a>
+                  <a class="dropdown-item" href="javascript:void();">Something else here</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="javascript:void();">Separated link</a>
+                  </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body"><p>
+                <div class="chart-container-2" style="width: 400px; height:400px; display:flex;justify-content:center;color:#ffffff;margin-left:20px">
+                      <canvas id="myChart-<?php echo $id_categorie; ?>"  style="color:white;margin-left:20px" width="400" height="400"></canvas>  <script>
+                        var ctx = document.getElementById('myChart-<?php echo $id_categorie; ?>').getContext('2d');
+                        var myChart = new Chart(ctx, {
+                          type: 'pie',  
+                          data: {
+                            labels: <?php echo json_encode($categoryLabels); ?>,
+                            datasets: [{
+                              backgroundColor: [
+                                "#ffd400",
+                                "#e5e5e5",
+                                "#191919",
+                                "#ffffff",
+                                "#1e7145"  
+                              ],
+                              data: <?php echo json_encode($categoryPoints); ?>
+                            }]
+                          },
+                          options: {
+                            title: {
+                              display: true,
+                              text: "Classement Catégorie: <?php echo $category_name; ?>",
+                              fontColor: 'white'
+                            },
+                            legend: {
+                                labels: {
+                                    fontColor: 'white'
+                                }
+                            }
+                          }
+                        });
+                      </script>
+              
+
+                
+
+                </div>
+              </div>
+             
+
+              
+
+            </div>
+        </div>
+
+        <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>Aucun résultat trouvé.</p>
+                <?php endif; ?>
+
+                <div class="col-12 col-lg-4 col-xl-4">
+            <div class="card">
+              <div class="card-header"> CLASSEMENT EQUIPE
+                <div class="card-action">
+                <div class="dropdown">
+                <a href="javascript:void();" class="dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown">
+                  <i class="icon-options"></i>
+                </a>
+                  <div class="dropdown-menu dropdown-menu-right">
+                  <a class="dropdown-item" href="javascript:void();">Action</a>
+                  <a class="dropdown-item" href="javascript:void();">Another action</a>
+                  <a class="dropdown-item" href="javascript:void();">Something else here</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="javascript:void();">Separated link</a>
+                  </div>
+                  </div>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table align-items-center">
+                <?php foreach($classement_general_par_equipe_avec_rang as $data): ?> 
+                  <tbody>
+                    <tr>
+                      <td><i class="fa fa-circle text-white mr-2"></i> <?php echo $data->rang; ?></td>
+                      <td>
+                      <a href="<?php echo base_url('Controller/points_totaux_par_equipe_par_etape_equipe?equipe=' . urlencode($data->nom_equipe)); ?>" style="color:black; height:auto; align-items:center;">
+                         Equipe <?php echo htmlspecialchars($data->nom_equipe); ?>
+                      </a>
+                      </td>
+
+                      <td><p style=" color:#ffd400"><?php echo $data->points_totaux; ?></p></td>
+                    </tr>
+                  </tbody>
+                  <?php endforeach; ?>
+                </table>
+              </div>
+
+              <div class="col-lg-12" style="margin:20px;">
+                  <a href="<?php echo base_url("Controller/export_html_pdf"); ?>" style="background-color: #ffd400; color:black;height:115px;display:flex;justify-content:center;align-items:center;margin-right:40px" class="btn btn-light btn-round px-5">Exporter le premier</a>
+              </div>
+
+            </div>
+        </div>
+    
 	
-	<div class="row">
 	 <div class="col-12 col-lg-12">
 	   <div class="card">
 	     <div class="card-header">Listes des classement général et les points pour chaque étape
@@ -145,7 +256,7 @@
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="javascript:void();">Separated link</a>
                </div>
-              </div>
+              </div>  
              </div>
 		 </div>
 	       <div class="table-responsive">
@@ -161,6 +272,7 @@
                    <?php foreach($points_totaux_par_equipe_par_etape as $data): ?> 
                       <tr>
                           <td>Etape <?php echo $data->id_etape; ?></td>
+                          
                           <td>Equipe <?php echo $data->nom_equipe; ?></td>
                           <td><p style=" color:#ffd400"><?php echo $data->points_totaux; ?></p></td>
                     </tr>
@@ -170,7 +282,7 @@
             </div>
 	   </div>
 	 </div>
-	</div><!--End Row-->
+	
 
       <!--End Dashboard Content-->
 	  
@@ -186,3 +298,5 @@
     <a href="javaScript:void();" class="back-to-top"><i class="fa fa-angle-double-up"></i> </a>
     <!--End Back To Top Button-->
 	
+  
+   

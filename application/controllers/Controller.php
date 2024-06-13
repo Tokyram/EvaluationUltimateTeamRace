@@ -21,14 +21,18 @@ class Controller extends CI_Controller {
 	{
 
 		$data['page'] = "home";
+		$data['categorie_equipe'] = $this->model->get_points_par_equipe_et_categorie();
 		$data['points_totaux_par_equipe_par_etape'] = $this->model->points_totaux_par_equipe_par_etape();
 		$data['classement_general_par_equipe_avec_rang'] = $this->model->classement_general_par_equipe_avec_rang();
+		$data['chart_data'] = json_encode($data['classement_general_par_equipe_avec_rang']);
 		$this->load->view('header', $data);
 	}
 	public function login()
 	{
 		$this->load->view('login');
 	}
+
+
 	public function register()
 	{
 		$this->load->view('register');
@@ -187,7 +191,7 @@ class Controller extends CI_Controller {
 		
 		$data['page'] = "cards";
 
-		$data['etapes'] = $this->model->findAll4('etape', 'nom','longueur', 'nb_coureur','rang_etape');
+		$data['etapes'] = $this->model->findAll('etape', 'rang_etape');
 		$this->load->view('header', $data);
 		
 	}
@@ -313,11 +317,15 @@ class Controller extends CI_Controller {
 			$handle = fopen($file, "r");
 			if ($handle !== FALSE) {
 				fgetcsv($handle, 1000, ",");
-				
+	
+				// Désactiver temporairement les clés étrangères
+				$this->db->query("SET foreign_key_checks = 0;");
+	
 				// Parcourir chaque ligne du fichier CSV
 				while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
 					// Préparer les données pour la table 'etape'
 					$etape = array(
+						'id' => $data[3], // Utiliser rang_etape comme id
 						'nom' => $data[0],
 						'longueur' => str_replace(",", ".", $data[1]),
 						'nb_coureur' => $data[2],
@@ -330,9 +338,20 @@ class Controller extends CI_Controller {
 					$date_depart_formatted = $date_depart->format('Y-m-d H:i:s');
 					$etape['date_depart'] = $date_depart_formatted;
 	
-					// Insérer les données dans la table 'etape'
-					$this->db->insert('etape', $etape);
-					$id_etape = $this->db->insert_id();
+					// Vérifier si une étape avec cet id existe déjà
+					$this->db->where('id', $etape['id']);
+					$query = $this->db->get('etape');
+					if ($query->num_rows() > 0) {
+						// Si l'étape existe déjà, mettre à jour ses informations
+						$this->db->where('id', $etape['id']);
+						$this->db->update('etape', $etape);
+					} else {
+						// Sinon, insérer une nouvelle étape
+						$this->db->insert('etape', $etape);
+					}
+	
+					// Utiliser le rang_etape comme id_etape
+					$id_etape = $etape['id'];
 	
 					// Préparer les données pour la table 'etape_coureur'
 					for ($i = 0; $i < $etape['nb_coureur']; $i++) {
@@ -349,6 +368,10 @@ class Controller extends CI_Controller {
 						$this->db->query($sql);
 					}
 				}
+	
+				// Réactiver les clés étrangères
+				$this->db->query("SET foreign_key_checks = 1;");
+	
 				fclose($handle);
 				echo "Importation réussie!";
 			} else {
@@ -358,6 +381,9 @@ class Controller extends CI_Controller {
 			echo "Aucun fichier sélectionné.";
 		}
 	}
+	
+	
+	
 	
 	
 	public function import_resultat_csv() {
@@ -381,9 +407,9 @@ class Controller extends CI_Controller {
 						// Si l'équipe n'existe pas, insérez-la dans la table utilisateur
 						$equipe_data = array(
 							'nom' => $data[5],
-							'login' => $data[5], // Vous pouvez définir le login par défaut comme le nom de l'équipe
-							'mdp' => '123', // Mot de passe vide par défaut, à modifier selon vos besoins
-							'type_utilisateur' => 0 // Type utilisateur pour l'équipe (vous pouvez ajuster selon votre système)
+							'login' => $data[5], 
+							'mdp' => $data[5], 
+							'type_utilisateur' => 0
 						);
 						$this->db->insert('utilisateur', $equipe_data);
 						$id_equipe = $this->db->insert_id();
@@ -541,34 +567,105 @@ class Controller extends CI_Controller {
 		$current_rank = 1;
 		$previous_points = null;
 		$rank_counter = 1;
-	
+		
 		foreach ($results as $result) {
 			if ($current_category != $result['id_categorie']) {
+				// Reset for new category
 				$current_category = $result['id_categorie'];
 				$current_rank = 1;
 				$previous_points = null;
 				$rank_counter = 1;
 			}
-	
-			if ($previous_points !== null && $previous_points != $result['points_totaux']) {
+			
+			if ($previous_points === null || $previous_points != $result['points_totaux']) {
 				$current_rank = $rank_counter;
 			}
-	
+			
 			$ranked_results[] = array_merge($result, ['rang' => $current_rank]);
-	
+			
 			$previous_points = $result['points_totaux'];
 			$rank_counter++;
 		}
-	
+		
 		return $ranked_results;
 	}
 	
+	
+	
 	public function categorie_equipe() {
-		$this->load->model('ModelGeneral'); 
 		$data['page'] = "categorie_equipe";
 		$data['categorie_equipe'] = $this->get_points_par_equipe_et_categorie_avec_rang();
 		$this->load->view('header', $data);
 		
+	}
+
+	public function penalite_equipe(){
+		$data['page'] = "penalite_equipe";
+		$data['etapes'] = $this->model->findAll4('etape', 'nom','longueur', 'nb_coureur','rang_etape');
+		$data['equipes'] = $this->model->findAllbytype('utilisateur', 'nom', 'type_utilisateur != 1');
+		$data['penalite_equipe'] = $this->model->penalite_equipe('penalite', 'nom_etape', 'nom_equipe','temps_penalite_equipe');
+		$this->load->view('header', $data);
+	}
+	
+
+	public function add_penalite_equile(){
+		$input = $this->input->post();
+
+		$data = array(
+			'id_etape' => $input['id_etape'],
+			'id_equipe' => $input['id_equipe'],
+			'temps_penalite_equipe' => $input['temps_penalite_equipe']
+		);
+
+		$this->model->save('penalite', $data);
+		redirect(base_url('controller/penalite_equipe'));
+	}
+
+	public function supprimer($id) {
+		$this->model->delete('penalite','id',$id);
+		redirect('Controller/penalite_equipe');
+	}
+
+	
+	
+	public function export_equipe_gagnant() {
+
+		$data['equipes_gagnant'] = $this->model->classement_general_par_equipe_gagnant();
+		
+		$this->load->library('pdf');
+	
+		$html = $this->load->view('equipe_gagnant_pdf', $data, true);
+		$this->pdf->load_html($html);
+		$this->pdf->render();
+	
+		$output = $this->pdf->output();
+	
+		// Envoyer le PDF en tant que téléchargement
+		$filename = 'Equipe gagnan de la course.pdf';
+		header('Content-Type: application/pdf');
+		header('Content-Disposition: attachment; filename="' . $filename . '"');
+		header('Content-Length: ' . strlen($output));
+		echo $output;
+	}
+
+	public function export_html_pdf(){
+		$data['page'] = "equipe_gagnant_pdf";
+		$data['equipes_gagnant'] = $this->model->classement_general_par_equipe_gagnant();
+		$this->load->view('header', $data);
+	}
+
+	public function coureur_etape_temps_penalite(){
+		$id_etape = $this->input->get('id');
+		$data["page"] = "liste_coureur";
+		$data["coureur_etape_temps_penalite"] = $this->model->coureur_etape_temps_penalite($id_etape);
+		$this->load->view('header', $data);
+	}
+
+	public function points_totaux_par_equipe_par_etape_equipe(){
+		$equipe = $this->input->get('equipe');
+		$data['page'] = "liste_equipe_par_etape";
+		$data['points_totaux_par_equipe_par_etape_equipe'] = $this->model->points_totaux_par_equipe_par_etape_equipe($equipe);
+		$this->load->view('header', $data);
 	}
 	
 	

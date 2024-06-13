@@ -33,7 +33,13 @@
   <!-- Custom Style-->
   <link href="<?=base_url('assets/css/app-style.css')?>" rel="stylesheet"/>
   <link href="<?=base_url('assets/css/places.css')?>" rel="stylesheet"/>
-  
+  <script src="<?=base_url('assets/js/Chart.js')?>"></script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script> -->
+
 </head>
 
 <body class="bg-theme bg-theme3">
@@ -121,7 +127,10 @@
         </svg>       <span style="margin-left:5px">Classement categorie</span>
         </a>
       </li>
-     
+
+      <?php if(!isset($_SESSION['utilisateur'])) {?>
+      <li><a href="<?=base_url('Controller/penalite_equipe')?>"><i class="zmdi zmdi-coffee text-danger"></i> <span>Ajouter un pénalité</span></a></li>
+      <?php }?>
 
       <!-- <?php if(!isset($_SESSION['utilisateur'])) {?>
       <li>
@@ -218,7 +227,7 @@
 <!--End topbar header-->
    
     <?php include($page.".php") ?>
-    <!-- <?php include("footer.php") ?> -->
+    <?php include("footer.php") ?>
 
 
 

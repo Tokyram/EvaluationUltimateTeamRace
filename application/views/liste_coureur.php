@@ -15,7 +15,7 @@
             </ul>
             <div class="tab-content p-3">
                 <div class="tab-pane active" id="profile">
-                    <h5 class="mb-3">Liste des Etapes</h5>
+                    <h5 class="mb-3">Liste des Coureurs</h5>
                     <!-- <a href="<?= base_url('Controller/form?id=' . $data->id) ?>" class="btn btn-light btn-round px-5"><i class="icon-note"></i>Assiger un coureur</a> -->
                     <div class="row">
                        
@@ -25,32 +25,58 @@
                             <table class="table table-hover table-striped">
                                 <thead>
                                 <tr>
-                                        <th>Numero</th>
 
-                                        <th>Nom etape</th>
+                                        <th>Classement</th>
+                                        <th>Nom du coureur</th>
 
-                                        <th>Distance</th>
-                                        <th>NB coureur</th>
-                                        <th>Assigner</th>
+                                        <th>Genre</th>
+
+                                        <th>Temps initial</th>
+                                        <th>Penalite</th>
+                                        <th>Temps penaliser</th>
                                     </tr> 
                                 </thead>
                                 <tbody>  
-                                <?php foreach($etapes as $data): ?>                           
+                                <?php foreach($coureur_etape_temps_penalite as $data): ?>                           
                                     <tr>
                                         <td>
-                                        <?php echo $data->rang_etape; ?>
+                                        <?php echo $data['rang']; ?>
                                         </td>
                                         <td>
-                                        <?php echo $data->nom; ?>
+                                        <?php echo $data['nom']; ?>
                                         </td>
                                         <td>
-                                        <?php echo $data->longueur; ?> km
+                                        <?php echo $data['genre']; ?> 
                                         </td>
                                         <td>
-                                        <?php echo $data->nb_coureur; ?>
+                                            <?php
+                                            $temps_initial = $data['temps_initial'];
+                                            $heures = floor($temps_initial / 3600);
+                                            $minutes = floor(($temps_initial % 3600) / 60);
+                                            $secondes = $temps_initial % 60;
+                                            echo sprintf('%02d:%02d:%02d', $heures, $minutes, $secondes);
+                                            ?>
+                                        </td>
+
+                                        <td>
+                                        <?php
+                                            $temps_initial = $data['penalite_en_secondes'];
+                                            $heures = floor($temps_initial / 3600);
+                                            $minutes = floor(($temps_initial % 3600) / 60);
+                                            $secondes = $temps_initial % 60;
+                                            echo sprintf('%02d:%02d:%02d', $heures, $minutes, $secondes);
+                                            ?>
                                         </td>
                                         <td>
-                                        <a href="<?= base_url('Controller/coureur_etape_temps_penalite?id=' . $data->id) ?>" class="btn btn-light btn-round px-5"> Coureurs</a>
+                                        <?php
+                                            $temps_initial = $data['temps_total'];
+                                            $heures = floor($temps_initial / 3600);
+                                            $minutes = floor(($temps_initial % 3600) / 60);
+                                            $secondes = $temps_initial % 60;
+                                            echo sprintf('%02d:%02d:%02d', $heures, $minutes, $secondes);
+                                            ?>
+                           
+
                                         </td>
                                         
                                     </tr>

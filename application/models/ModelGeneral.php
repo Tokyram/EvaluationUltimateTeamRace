@@ -26,6 +26,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			return $this->db->query($sql)->result();
 		}
 
+		public function findAllbytype($table, $colonne, $condition = null) {
+			$sql = "SELECT * FROM %s";
+			if ($condition) {
+				$sql .= " WHERE %s";
+			}
+			$sql .= " ORDER BY %s ASC";
+			
+			if ($condition) {
+				$sql = sprintf($sql, $table, $condition, $colonne);
+			} else {
+				$sql = sprintf($sql, $table, $colonne);
+			}
+		
+			return $this->db->query($sql)->result();
+		}
+		
+
 		public function findAll4($table, $colonne, $colonne1, $colonne2, $colonne3){
 			$sql = "SELECT * FROM %s order by %s desc";
 			$sql = sprintf($sql, $table, $colonne,$colonne1, $colonne2, $colonne3);
@@ -81,7 +98,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				return false;
 			}
 		}
-		
+		public function delete($table,$colone_id,$id){
+			$this->db->where($colone_id, $id);
+			if($this->db->delete($table)) return true;
+			else return false;
+		}
 		public function calculate_and_insert_results() {
 
 			
@@ -115,16 +136,19 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 							@currentEtape := ec.id_etape
 						FROM (
 							SELECT 
-								id_etape,
-								id_coureur,
+								etp.id_etape,
+								etp.id_coureur,
 								CASE 
 									WHEN date_depart IS NULL OR date_arriver IS NULL THEN NULL
+									WHEN vp.penalite_en_secondes IS NOT NULL THEN  TIMESTAMPDIFF(SECOND, date_depart, date_arriver) + vp.penalite_en_secondes
 									ELSE TIMESTAMPDIFF(SECOND, date_depart, date_arriver)
 								END AS temps_total
-							FROM 
-								race.etape_coureur
-							ORDER BY 
-								id_etape, temps_total
+							FROM race.etape_coureur etp
+							JOIN race.coureur c on etp.id_coureur = c.id
+							JOIN race.equipe_coureur eqc ON c.id = eqc.id_coureur
+							JOIN race.utilisateur u ON eqc.id_equipe = u.id
+							LEFT JOIN v_penalite vp on vp.id_equipe = eqc.id_equipe AND vp.id_etape = etp.id_etape
+							ORDER BY id_etape, temps_total
 						) ec
 					) ec
 					LEFT JOIN race.points p ON ec.rank = p.classement
@@ -136,6 +160,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 		public function points_totaux_par_equipe_par_etape(){
 			$sql = "SELECT * FROM race.points_totaux_par_equipe_par_etape";
+			return $this->db->query($sql)->result();
+		}
+
+		public function points_totaux_par_equipe_par_etape_equipe($equipe){
+			$sql = "SELECT * FROM race.points_totaux_par_equipe_par_etape
+					where nom_equipe = '$equipe'
+					order by id_etape asc
+					";
 			return $this->db->query($sql)->result();
 		}
 
@@ -164,6 +196,33 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			return $this->db->query($sql)->result();
 		}
 		
+		public function classement_general_par_equipe_gagnant(){
+			$sql="SELECT
+						id_equipe,
+						nom_equipe,
+						points_totaux,
+						@rank := @rank + 1 AS points_totauxpoints_totaux
+					FROM
+						(SELECT 
+							e.id AS id_equipe,
+							e.nom AS nom_equipe,
+							SUM(pte.points_totaux) AS points_totaux
+						FROM
+							race.points_totaux_par_equipe_par_etape pte
+						JOIN
+							race.utilisateur e ON pte.id_equipe = e.id
+
+						GROUP BY
+							e.id,
+							e.nom
+						ORDER BY
+							points_totaux DESC) AS classement,
+						(SELECT @rank := 0) r
+						where @rank + 1 = 1
+						";
+			return $this->db->query($sql)->result();
+		}
+		
 
 		public function resetDatabase(){
 			$this->load->database();
@@ -184,6 +243,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			$this->db->truncate('resultat');
 			$this->db->truncate('resultat_categorie');
 			$this->db->truncate('points');
+			$this->db->truncate('penalite');
 
 
 			$this->db->where('type_utilisateur !=', '1');
@@ -191,7 +251,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 			$this->db->query("ALTER TABLE utilisateur AUTO_INCREMENT = 1");
 
-			// Réactiver les contraintes de clé étrangère
 			$this->db->query('SET FOREIGN_KEY_CHECKS = 1');
 		}
 
@@ -296,6 +355,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		}
 
 
+		// coureur avec temps chrono
 		public function get_coureurs_with_temps_by_equipe_and_etape($id_equipe, $id_etape) {
 			$sql = "
 					SELECT 
@@ -400,9 +460,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				if ($age < 18) {
 					$categories[] = 'Junior';
 				}
-				if ($age >= 18) {
-					$categories[] = 'Senior';
-				}
+				// if ($age >= 18) {
+				// 	$categories[] = 'Senior';
+				// }
 		
 				foreach ($categories as $categorie) {
 					// Vérifie si la catégorie existe dans la table 'categorie'
@@ -492,19 +552,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 								@currentCategorie := ec.id_categorie
 							FROM (
 								SELECT 
-									ec.id_etape,
-									ec.id_coureur,
+									etp.id_etape,
+									etp.id_coureur,
 									cc.id_categorie,
 									CASE 
-										WHEN ec.date_depart IS NULL OR ec.date_arriver IS NULL THEN NULL
-										ELSE TIMESTAMPDIFF(SECOND, ec.date_depart, ec.date_arriver)
+										WHEN date_depart IS NULL OR date_arriver IS NULL THEN NULL
+										WHEN vp.penalite_en_secondes IS NOT NULL THEN  TIMESTAMPDIFF(SECOND, date_depart, date_arriver) + vp.penalite_en_secondes
+										ELSE TIMESTAMPDIFF(SECOND, date_depart, date_arriver)
 									END AS temps_total
-								FROM 
-									race.etape_coureur ec
-								JOIN 
-									race.categorie_coureur cc ON ec.id_coureur = cc.id_coureur
-								ORDER BY 
-									ec.id_etape, cc.id_categorie, temps_total
+								FROM race.etape_coureur etp
+								JOIN race.categorie_coureur cc ON etp.id_coureur = cc.id_coureur
+								JOIN race.coureur c on etp.id_coureur = c.id
+								JOIN race.equipe_coureur eqc ON c.id = eqc.id_coureur
+								JOIN race.utilisateur u ON eqc.id_equipe = u.id
+								LEFT JOIN v_penalite vp on vp.id_equipe = eqc.id_equipe AND vp.id_etape = etp.id_etape
+								ORDER BY id_etape,cc.id_categorie, temps_total
 							) ec,
 							(SELECT @current_rank := 0, @prev_rank := 0, @prev_time := NULL, @currentEtape := NULL, @currentCategorie := NULL) r
 						) ec
@@ -514,6 +576,55 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					";
 			$this->db->query($sql);
 		}
+		public function penalite_equipe() {
+			$sql = "SELECT p.id as id_penalite, u.nom as nom_equipe , e.nom as nom_etape, temps_penalite_equipe
+							FROM penalite p
+							JOIN utilisateur u ON p.id_equipe = u.id
+							JOIN etape e ON p.id_etape = e.id
+			";
+			return $this->db->query($sql)->result_array();
+		}
+
+	
+		public function coureur_etape_temps_penalite($id_etape){
+			$sql = "SELECT 
+				nouveau.id_etape, 
+				nouveau.nom, 
+				nouveau.genre, 
+				nouveau.temps_total, 
+				nouveau.penalite_en_secondes, 
+				COALESCE((nouveau.temps_total - nouveau.penalite_en_secondes), nouveau.temps_total) AS temps_initial,
+				@current_rank := IF(@currentEtape = nouveau.id_etape AND @prev_time = nouveau.temps_total, @current_rank, @rank := @rank + 1) AS rang,
+				@prev_time := nouveau.temps_total,
+				@currentEtape := nouveau.id_etape
+				FROM (
+				SELECT 
+					etp.id_etape,
+					etp.id_coureur,
+					c.nom,
+					c.genre,
+					CASE 
+						WHEN date_depart IS NULL OR date_arriver IS NULL THEN NULL
+						WHEN vp.penalite_en_secondes IS NOT NULL THEN COALESCE(TIMESTAMPDIFF(SECOND, date_depart, date_arriver) + vp.penalite_en_secondes, '0')
+						ELSE COALESCE(TIMESTAMPDIFF(SECOND, date_depart, date_arriver), '0')
+					END AS temps_total,
+					u.id AS id_equipe, 
+					vp.penalite_en_secondes
+				FROM race.etape_coureur etp
+				JOIN race.coureur c ON etp.id_coureur = c.id
+				JOIN race.equipe_coureur eqc ON c.id = eqc.id_coureur
+				JOIN race.utilisateur u ON eqc.id_equipe = u.id
+				LEFT JOIN v_penalite vp ON vp.id_equipe = eqc.id_equipe AND vp.id_etape = etp.id_etape
+				ORDER BY etp.id_etape, temps_total
+				) AS nouveau
+
+				JOIN (SELECT @rank := 0, @current_rank := 0, @prev_time := NULL, @currentEtape := NULL) r
+				WHERE nouveau.id_etape = $id_etape
+				ORDER BY nouveau.id_etape, nouveau.temps_total ";
+
+				return $this->db->query($sql)->result_array();
+		}
+
     }
 
 ?>

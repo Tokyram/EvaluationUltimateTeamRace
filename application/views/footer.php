@@ -1,7 +1,7 @@
-<footer class="footer">
+<footer class="footer" style="margin-top:100px">
       <div class="container">
         <div class="text-center">
-          Copyright © 2018 Dashtreme Admin
+          Copyright © 2024 Artok PROJECT RACE
         </div>
       </div>
     </footer>
@@ -60,12 +60,13 @@
   <script src="<?=base_url('assets/js/jquery.loading-indicator.js')?>"></script>
   <!-- Custom scripts -->
   <script src="<?=base_url('assets/js/app-script.js')?>"></script>
+  <script src="<?=base_url('assets/js/Chart.js')?>"></script>
   <!-- Chart js -->
   
   <script src="<?=base_url('assets/plugins/Chart.js/Chart.min.js')?>"></script>
  
   <!-- Index js -->
-  <script src="<?=base_url('assets/js/index.js')?>"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script> -->
 
     <!-- Full Calendar -->
     <script src='<?=base_url('assets/plugins/fullcalendar/js/moment.min.js')?>'></script>

@@ -1,15 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Classement par Catégorie</title>
-    <link rel="stylesheet" href="path/to/your/css/styles.css"> <!-- Assurez-vous de pointer vers votre fichier CSS -->
-    
-</head>
-<body>
+
 <div class="row" style="margin-left:270px;margin-top:100px">
   <div class="col-lg-12">
-            <a href="<?php echo base_url("Controller/actualise_resultat_categorie"); ?>" class="btn btn-light btn-round px-5">Actualiser les resultats</a>
+            <a href="<?php echo base_url("Controller/actualise_resultat_categorie"); ?>" class="btn btn-light btn-round px-5">Mettre a jour les resultats</a>
   </div>
   <br></br>
 <div class="col-8 col-lg-8" style="display: flex; flex-wrap: wrap; justify-content:space-evenly">
@@ -37,28 +29,46 @@
 	   <div class="card" style="margin:50px;">
      <h3 class="category-title" style="margin:20px">Catégorie: <p style="color:#ffd400;"> <?= htmlspecialchars($category_name) ?></p></h3>
 
-            <section class="category-section">
-                <div class="table-responsive">
-                <table class="table align-items-center table-flush table-borderless">
-                    <thead>
-                        <tr>
-                            <th>Rang</th>
-                            <th>Équipe</th>
-                            <th>Points Totaux</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($results as $result): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($result['rang']) ?></td>
-                                <td><?= htmlspecialchars($result['nom_equipe']) ?></td>
-                                <td><?= htmlspecialchars($result['points_totaux']) ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-                </div>
-            </section>
+     <section class="category-section">
+    <div class="table-responsive">
+        <table class="table align-items-center table-flush table-borderless">
+            <thead>
+                <tr>
+                    <th>Rang</th>
+                    <th>Équipe</th>
+                    <th>Points Totaux</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php 
+
+                $occurrences = array_count_values(array_column($results, 'points_totaux'));
+                $defaultColors = ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-warning', 'bg-info', 'bg-light', 'bg-dark']; // Couleurs par défaut
+                $colorIndex = 0;
+                $colorMap = []; 
+                
+                foreach ($results as $result): 
+                    $points_totaux = $result['points_totaux'];
+                    $occurrence = $occurrences[$points_totaux];
+
+                    if (!isset($colorMap[$points_totaux])) {
+                        $colorMap[$points_totaux] = $defaultColors[$colorIndex % count($defaultColors)];
+                        $colorIndex++; 
+                    }
+                    $colorClass = $colorMap[$points_totaux];
+                ?>
+                    <tr>
+                        <td><i class="fa fa-circle text-white mr-2"></i><?= htmlspecialchars($result['rang']) ?></td>
+                        <td><?= htmlspecialchars($result['nom_equipe']) ?></td>
+                        <td class="<?= $colorClass ?>"><?= htmlspecialchars($points_totaux) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+
 </div>
 
         <?php endif; ?>
@@ -68,5 +78,4 @@
 <?php endif; ?>
 </div>
 </div>
-</body>
-</html>
+

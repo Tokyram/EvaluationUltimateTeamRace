@@ -69,3 +69,42 @@ ALTER TABLE race.etape_coureur ADD CONSTRAINT fk_etape_coureur_etape FOREIGN KEY
 
 ALTER TABLE race.etape_coureur ADD CONSTRAINT fk_etape_coureur_coureur FOREIGN KEY ( id_coureur ) REFERENCES race.coureur( id ) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
+ <!-- <div class="table-responsive">
+
+              <?php if (!empty($categorie_equipe)): 
+                      $current_category = null;
+                      $categories = array();
+
+                      // Organisez les résultats par catégorie
+                      foreach ($categorie_equipe as $result) {
+                          if (!isset($categories[$result['id_categorie']])) {
+                              $categories[$result['id_categorie']] = array();
+                          }
+                          $categories[$result['id_categorie']][] = $result;
+                      }
+
+                      // Affichez les sections par catégorie
+                      foreach ($categories as $id_categorie => $results):
+                          if (!empty($results)):
+                              $category_name = $results[0]['nom_categorie'];
+                              ?>
+
+              
+                <table class="table align-items-center">
+                <?php foreach ($results as $result): ?>
+                  <tbody>
+                    <tr>
+                        <td><i class="fa fa-circle text-white mr-2"></i><?= htmlspecialchars($result['rang']) ?></td>
+                        <td><?= htmlspecialchars($result['nom_equipe']) ?></td>
+                        <td><?= htmlspecialchars($result['points_totaux']) ?></td>
+                    </tr>
+                  </tbody>
+                  <?php endforeach; ?>
+                </table>
+
+                                <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>Aucun résultat trouvé.</p>
+                <?php endif; ?>
+              </div> -->
